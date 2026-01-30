@@ -51,6 +51,37 @@ class Validator {
         };
     }
 
+    // Validate position constraints
+    validatePositions(selectedPlayers, positionConstraints) {
+        const results = {};
+
+        // If no position constraints, return empty results (all pass)
+        if (!positionConstraints) {
+            return results;
+        }
+
+        // Check each position group
+        for (const [groupName, constraint] of Object.entries(positionConstraints)) {
+            // Count players in this position group
+            const count = selectedPlayers.filter(player =>
+                constraint.positions.includes(player.position)
+            ).length;
+
+            // Check if minimum requirement is met
+            const passes = count >= constraint.min;
+
+            results[groupName] = {
+                label: groupName.charAt(0).toUpperCase() + groupName.slice(1),
+                count: count,
+                min: constraint.min,
+                positions: constraint.positions,
+                pass: passes
+            };
+        }
+
+        return results;
+    }
+
     // Validate specific criteria
     validateCriteria(selectedPlayers) {
         const results = {};
@@ -116,15 +147,20 @@ class Validator {
         // Validate criteria
         const criteriaResults = this.validateCriteria(selectedPlayers);
 
+        // Validate position constraints
+        const positionResults = this.validatePositions(selectedPlayers, this.scenario.positionConstraints);
+
         // Determine overall pass/fail
         const allCriteriaPass = Object.values(criteriaResults).every(c => c.pass);
-        const overallPass = playerCountValidation.pass && budgetValidation.pass && allCriteriaPass;
+        const allPositionsPass = Object.values(positionResults).every(p => p.pass);
+        const overallPass = playerCountValidation.pass && budgetValidation.pass && allCriteriaPass && allPositionsPass;
 
         return {
             pass: overallPass,
             playerCount: playerCountValidation,
             budget: budgetValidation,
             criteria: criteriaResults,
+            positions: positionResults,
             selectedPlayers: selectedPlayers
         };
     }

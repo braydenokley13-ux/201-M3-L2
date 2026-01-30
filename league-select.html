@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Select Your Challenge | Sports Analytics Team Builder</title>
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/animations.css">
+    <link rel="stylesheet" href="css/pages.css">
+</head>
+<body class="hub-page">
+
+    <!-- Header -->
+    <header class="game-header">
+        <div class="container">
+            <h1 class="game-title">⚾🏀🏈 Your GM Dashboard</h1>
+            <div class="gm-info">
+                <span class="gm-name-display">GM: <strong id="gm-name-header">Loading...</strong></span>
+                <span class="progress-display">
+                    <span id="completed-scenarios">0</span>/3 Franchises Saved
+                </span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Hub Content -->
+    <main class="hub-container">
+        <div class="container">
+
+            <div class="hub-intro">
+                <h2>Choose Your Challenge</h2>
+                <p>Complete each scenario in order to unlock the next league. Use analytics to build championship-caliber rosters within budget constraints.</p>
+            </div>
+
+            <!-- League Cards -->
+            <div class="league-cards">
+
+                <!-- MLB Card -->
+                <div class="league-card mlb-card" id="league-card-1" data-scenario="1">
+                    <div class="card-header">
+                        <span class="league-badge mlb">⚾ MLB</span>
+                        <span class="card-status" id="status-1">
+                            <span class="status-icon">🔓</span>
+                            <span class="status-text">Available</span>
+                        </span>
+                    </div>
+
+                    <h3 class="card-title">The Lost Star</h3>
+                    <p class="card-description">
+                        Your franchise player just left for $30M/year. Replace his production with 2-4 players using only $40M.
+                    </p>
+
+                    <div class="card-challenge">
+                        <h4>Analytics Challenge:</h4>
+                        <ul>
+                            <li>Budget: <strong>$40 Million</strong></li>
+                            <li>Players: <strong>2-4</strong> selected</li>
+                            <li>Master: <strong>OBP, SLG, WAR, wRC+</strong></li>
+                        </ul>
+                    </div>
+
+                    <button class="btn btn-primary card-btn" data-link="mlb.html">
+                        Enter MLB Challenge →
+                    </button>
+                </div>
+
+                <!-- NBA Card -->
+                <div class="league-card nba-card locked" id="league-card-2" data-scenario="2">
+                    <div class="card-header">
+                        <span class="league-badge nba">🏀 NBA</span>
+                        <span class="card-status" id="status-2">
+                            <span class="status-icon">🔒</span>
+                            <span class="status-text">Locked</span>
+                        </span>
+                    </div>
+
+                    <h3 class="card-title">The Playoff Push</h3>
+                    <p class="card-description">
+                        8-seed playoff team got swept. Build a 3-5 player rotation that balances offense and defense for $75M.
+                    </p>
+
+                    <div class="card-challenge">
+                        <h4>Analytics Challenge:</h4>
+                        <ul>
+                            <li>Budget: <strong>$75 Million</strong></li>
+                            <li>Players: <strong>3-5</strong> selected</li>
+                            <li>Master: <strong>TS%, BPM, ORtg, DRtg</strong></li>
+                        </ul>
+                    </div>
+
+                    <button class="btn btn-primary card-btn" data-link="nba.html" disabled>
+                        🔒 Complete MLB First
+                    </button>
+                </div>
+
+                <!-- NFL Card -->
+                <div class="league-card nfl-card locked" id="league-card-3" data-scenario="3">
+                    <div class="card-header">
+                        <span class="league-badge nfl">🏈 NFL</span>
+                        <span class="card-status" id="status-3">
+                            <span class="status-icon">🔒</span>
+                            <span class="status-text">Locked</span>
+                        </span>
+                    </div>
+
+                    <h3 class="card-title">The Offensive Overhaul</h3>
+                    <p class="card-description">
+                        28th-ranked offense. Fans are booing. Fix it with 3-5 offensive weapons for $80M before Week 1.
+                    </p>
+
+                    <div class="card-challenge">
+                        <h4>Analytics Challenge:</h4>
+                        <ul>
+                            <li>Budget: <strong>$80 Million</strong></li>
+                            <li>Players: <strong>3-5</strong> selected</li>
+                            <li>Master: <strong>EPA/play, CPOE, Success Rate</strong></li>
+                        </ul>
+                    </div>
+
+                    <button class="btn btn-primary card-btn" data-link="nfl.html" disabled>
+                        🔒 Complete NBA First
+                    </button>
+                </div>
+
+            </div>
+
+            <!-- Progress Summary -->
+            <div class="progress-summary">
+                <h3>Your Progress</h3>
+                <div class="progress-bar-container">
+                    <div class="progress-bar" id="overall-progress-bar"></div>
+                </div>
+                <p class="progress-text" id="progress-message">Complete all 3 scenarios to prove you're the ultimate GM!</p>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Scripts -->
+    <script src="js/game-state.js"></script>
+    <script src="js/navigation.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Load GM name
+            const gmName = gameState.getGMName() || 'Anonymous GM';
+            document.getElementById('gm-name-header').textContent = gmName;
+
+            // Update progress
+            const completedCount = gameState.getCompletedCount();
+            document.getElementById('completed-scenarios').textContent = completedCount;
+
+            // Update progress bar
+            const progressBar = document.getElementById('overall-progress-bar');
+            progressBar.style.width = `${(completedCount / 3) * 100}%`;
+
+            // Update progress message
+            const progressMessage = document.getElementById('progress-message');
+            if (completedCount === 0) {
+                progressMessage.textContent = 'Start with MLB to begin your GM journey!';
+            } else if (completedCount === 1) {
+                progressMessage.textContent = '1 down, 2 to go! NBA is now unlocked.';
+            } else if (completedCount === 2) {
+                progressMessage.textContent = 'Almost there! Complete NFL to become the ultimate GM.';
+            } else {
+                progressMessage.textContent = 'All scenarios complete! You\'ve mastered sports analytics!';
+            }
+
+            // Check unlock status for each scenario
+            [1, 2, 3].forEach(scenarioId => {
+                const card = document.getElementById(`league-card-${scenarioId}`);
+                const button = card.querySelector('.card-btn');
+                const status = document.getElementById(`status-${scenarioId}`);
+
+                const isLocked = gameState.isScenarioLocked(scenarioId);
+                const isCompleted = gameState.isScenarioCompleted(scenarioId);
+
+                if (isCompleted) {
+                    // Completed
+                    card.classList.remove('locked');
+                    card.classList.add('completed');
+                    status.innerHTML = '<span class="status-icon">✅</span><span class="status-text">Completed</span>';
+                    button.textContent = 'Review Solution →';
+                    button.disabled = false;
+                } else if (!isLocked) {
+                    // Unlocked but not completed
+                    card.classList.remove('locked');
+                    button.disabled = false;
+                } else {
+                    // Locked
+                    card.classList.add('locked');
+                    button.disabled = true;
+                }
+            });
+
+            // Handle card button clicks
+            document.querySelectorAll('.card-btn').forEach(button => {
+                button.addEventListener('click', () => {
+                    if (!button.disabled) {
+                        const link = button.dataset.link;
+                        window.location.href = link;
+                    }
+                });
+            });
+
+            // Check if all scenarios complete -> redirect to victory
+            if (completedCount === 3 && !sessionStorage.getItem('victoryShown')) {
+                sessionStorage.setItem('victoryShown', 'true');
+                setTimeout(() => {
+                    window.location.href = 'victory.html';
+                }, 2000);
+            }
+        });
+    </script>
+</body>
+</html>

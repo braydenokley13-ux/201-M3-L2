@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Victory! | Sports Analytics Team Builder</title>
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/animations.css">
+    <link rel="stylesheet" href="css/pages.css">
+</head>
+<body class="victory-page">
+
+    <!-- Confetti Container -->
+    <div id="confetti-container"></div>
+
+    <!-- Victory Content -->
+    <div class="victory-container">
+        <div class="victory-content">
+
+            <!-- Trophy Icon -->
+            <div class="trophy-icon">🏆</div>
+
+            <!-- Victory Title -->
+            <h1 class="victory-title">CHAMPIONSHIP GM!</h1>
+            <h2 class="victory-subtitle">All 3 Franchises Saved</h2>
+
+            <!-- GM Name -->
+            <p class="gm-celebration">
+                <strong id="victory-gm-name">GM</strong>, you've proven that analytics wins championships!
+            </p>
+
+            <!-- Victory Message -->
+            <div class="victory-message">
+                <p class="message-text">
+                    The owner just called: <strong>"This is exactly what we needed. You turned analytics into results."</strong>
+                </p>
+                <p class="message-text">
+                    The fans are cheering. The media is buzzing. You've transformed three struggling franchises using the power of data.
+                </p>
+                <p class="message-text highlight">
+                    You didn't just build rosters—you mastered <strong>OBP, WAR, TS%, BPM, EPA,</strong> and proven that smart spending beats big spending.
+                </p>
+            </div>
+
+            <!-- Summary Stats -->
+            <div class="victory-stats">
+                <h3>Your Championship Summary</h3>
+
+                <div class="stats-grid">
+                    <div class="stat-card mlb-stat">
+                        <div class="stat-icon">⚾</div>
+                        <div class="stat-label">MLB Challenge</div>
+                        <div class="stat-value">COMPLETE</div>
+                        <div class="stat-detail" id="mlb-detail">Players selected</div>
+                    </div>
+
+                    <div class="stat-card nba-stat">
+                        <div class="stat-icon">🏀</div>
+                        <div class="stat-label">NBA Challenge</div>
+                        <div class="stat-value">COMPLETE</div>
+                        <div class="stat-detail" id="nba-detail">Players selected</div>
+                    </div>
+
+                    <div class="stat-card nfl-stat">
+                        <div class="stat-icon">🏈</div>
+                        <div class="stat-label">NFL Challenge</div>
+                        <div class="stat-value">COMPLETE</div>
+                        <div class="stat-detail" id="nfl-detail">Players selected</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Claim Code -->
+            <div class="claim-code-section">
+                <h3>🎉 Your Claim Code 🎉</h3>
+                <div class="claim-code">
+                    <code>L2-201-M3-MODEL</code>
+                </div>
+                <p class="claim-instruction">
+                    Save this code! Submit it to complete Module 3, Lesson 2.
+                </p>
+            </div>
+
+            <!-- Actions -->
+            <div class="victory-actions">
+                <button class="btn btn-primary btn-large" id="play-again-btn">
+                    🔄 Play Again
+                </button>
+                <a href="league-select.html" class="btn btn-secondary btn-large">
+                    📊 Review Solutions
+                </a>
+            </div>
+
+            <!-- Footer Message -->
+            <div class="victory-footer">
+                <p class="footer-quote">
+                    <em>"In the front office of the future, numbers don't just describe the game—they decide it."</em>
+                </p>
+                <p class="footer-credit">
+                    — Brayden White, BOW Sports Capital
+                </p>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/game-state.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Load GM name
+            const gmName = gameState.getGMName() || 'Anonymous GM';
+            document.getElementById('victory-gm-name').textContent = gmName;
+
+            // Load player counts for each scenario
+            const mlbCount = gameState.getSelectedPlayers(1).length;
+            const nbaCount = gameState.getSelectedPlayers(2).length;
+            const nflCount = gameState.getSelectedPlayers(3).length;
+
+            document.getElementById('mlb-detail').textContent = `${mlbCount} players selected`;
+            document.getElementById('nba-detail').textContent = `${nbaCount} players selected`;
+            document.getElementById('nfl-detail').textContent = `${nflCount} players selected`;
+
+            // Create confetti effect
+            createVictoryConfetti();
+
+            // Play Again button
+            document.getElementById('play-again-btn').addEventListener('click', () => {
+                if (confirm('Are you sure you want to reset all progress and start over?')) {
+                    gameState.clearState();
+                    sessionStorage.clear();
+                    window.location.href = 'index.html';
+                }
+            });
+        });
+
+        // Victory confetti function
+        function createVictoryConfetti() {
+            const container = document.getElementById('confetti-container');
+            const colors = ['#4ade80', '#fb923c', '#60a5fa', '#f59e0b', '#a78bfa'];
+
+            for (let i = 0; i < 100; i++) {
+                setTimeout(() => {
+                    const confetti = document.createElement('div');
+                    confetti.className = 'confetti-piece';
+                    confetti.style.left = Math.random() * 100 + '%';
+                    confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                    confetti.style.animationDelay = Math.random() * 0.5 + 's';
+                    confetti.style.animationDuration = (Math.random() * 2 + 2) + 's';
+                    container.appendChild(confetti);
+
+                    setTimeout(() => confetti.remove(), 5000);
+                }, i * 30);
+            }
+        }
+    </script>
+</body>
+</html>

@@ -45,16 +45,19 @@ class ScenarioUI {
         // Get stat keys for this sport
         const statKeys = Object.keys(this.scenario.statLabels).filter(key => key !== 'salary');
 
-        // Build stats HTML
+        // Build stats HTML with tooltips
         let statsHTML = '';
         statKeys.forEach(key => {
             const label = this.scenario.statLabels[key];
             const value = player[key];
             const formattedValue = this.validator.formatStatValue(key, value);
+            const explanation = this.scenario.statExplanations[key] || '';
 
             statsHTML += `
                 <div class="stat-item">
-                    <span class="stat-label">${label}</span>
+                    <span class="stat-label tooltip-trigger" data-tooltip="${explanation}">
+                        ${label}
+                    </span>
                     <span class="stat-value">${formattedValue}</span>
                 </div>
             `;
@@ -64,12 +67,14 @@ class ScenarioUI {
             <div class="player-card-header">
                 <div>
                     <div class="player-name">${player.name}</div>
+                    <span class="position-badge">${player.position}</span>
                 </div>
                 <div>
                     <span class="salary-label">Salary</span>
                     <div class="player-salary">$${player.salary.toFixed(1)}M</div>
                 </div>
             </div>
+            <div class="player-bio">${player.bio}</div>
             <div class="player-stats">
                 ${statsHTML}
             </div>
@@ -239,6 +244,15 @@ class ScenarioUI {
         for (const [key, result] of Object.entries(validationResult.criteria)) {
             if (!result.pass) {
                 failedCriteria.push(`${result.label} too ${result.operator === '>=' ? 'low' : 'high'}`);
+            }
+        }
+
+        // Check position constraints
+        if (validationResult.positions) {
+            for (const [key, result] of Object.entries(validationResult.positions)) {
+                if (!result.pass) {
+                    failedCriteria.push(`Need at least ${result.min} ${result.label} (${result.positions.join('/')}) - currently ${result.count}`);
+                }
             }
         }
 
