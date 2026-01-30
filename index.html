@@ -3,33 +3,77 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sports Analytics Team Builder | The GM Challenge</title>
-    <meta name="description" content="Use real analytics to build championship teams across MLB, NBA, and NFL">
+    <title>Sports Analytics Team Builder | BOW Sports Capital</title>
+    <meta name="description" content="Master sports analytics across MLB, NBA, and NFL. Build championship teams using real data and advanced metrics.">
     <link rel="stylesheet" href="css/main.css">
     <link rel="stylesheet" href="css/animations.css">
     <link rel="stylesheet" href="css/pages.css">
+    <style>
+        /* Inline critical styles for faster load */
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+        }
+        .loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #0f172a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            transition: opacity 0.5s ease;
+        }
+        .loading-screen.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            border-top-color: #3b82f6;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
 </head>
 <body class="intro-page">
+
+    <!-- Loading Screen -->
+    <div class="loading-screen" id="loading-screen">
+        <div class="loading-spinner"></div>
+    </div>
 
     <!-- Hero Section -->
     <div class="hero-container">
         <div class="hero-content">
             <div class="hero-badge">⚾ 🏀 🏈</div>
-            <h1 class="hero-title">The Championship Challenge</h1>
+            <h1 class="hero-title">Sports Analytics Team Builder</h1>
             <p class="hero-subtitle">You're the GM. Three struggling franchises. One mission.</p>
 
             <div class="hero-story">
                 <p class="story-text">
-                    The owner just called an emergency meeting. Your teams are struggling across baseball, basketball, and football.
+                    Welcome to <strong>BOW Sports Capital</strong>. The owner just called an emergency meeting.
+                </p>
+                <p class="story-text">
+                    Your teams are struggling across baseball, basketball, and football. Fans are angry. Media is circling. The front office needs results.
                 </p>
                 <p class="story-text highlight">
                     <strong>"We need results. Now. Use analytics to fix this—or you're fired."</strong>
                 </p>
                 <p class="story-text">
-                    You have limited budgets. You have limited roster spots. But you have the power of data.
+                    You have limited budgets. Limited roster spots. But you have the power of data.
                 </p>
                 <p class="story-text final">
-                    Can you use <strong>OBP, WAR, TS%, EPA,</strong> and advanced metrics to turn these franchises around?
+                    Can you use <strong>OBP, WAR, TS%, EPA,</strong> and other advanced metrics to turn these franchises around?
                 </p>
             </div>
 
@@ -40,9 +84,14 @@
                     type="text"
                     id="gm-name"
                     class="gm-name-input"
-                    placeholder="e.g., Pat Riley, Billy Beane..."
+                    placeholder="Pat Riley, Billy Beane, John Elway..."
                     maxlength="30"
+                    autocomplete="off"
+                    required
                 />
+                <p class="input-hint" id="input-hint" style="display: none; color: #ef4444; font-size: 0.875rem; margin-top: 0.5rem;">
+                    Please enter your name to continue
+                </p>
             </div>
 
             <!-- Start Button -->
@@ -50,11 +99,22 @@
                 Start Your Journey →
             </button>
 
+            <!-- Quick Start Link -->
+            <div class="quick-start" style="margin-top: 1rem;">
+                <a href="league-select.html" style="color: #94a3b8; font-size: 0.875rem; text-decoration: underline;">
+                    Skip intro (returning player)
+                </a>
+            </div>
+
             <div class="hero-footer">
                 <p class="disclaimer">
-                    Use real analytics from MLB, NBA, and NFL to make data-driven decisions.
+                    <strong>Master real analytics from MLB, NBA, and NFL.</strong>
                     <br>
-                    <em>Numbers don't just describe the game — they decide it.</em>
+                    Build teams with current stars like <strong>Shohei Ohtani, Nikola Jokic, Patrick Mahomes</strong> and legends like <strong>Babe Ruth, Michael Jordan, Tom Brady.</strong>
+                    <br><br>
+                    <em>"Numbers don't just describe the game—they decide it."</em>
+                    <br>
+                    <span style="font-size: 0.75rem; opacity: 0.7;">— Track 201 · Module 3 · Lesson 2</span>
                 </p>
             </div>
         </div>
@@ -62,58 +122,156 @@
 
     <!-- Background Decoration -->
     <div class="intro-background">
-        <div class="stat-float">OBP</div>
-        <div class="stat-float">TS%</div>
-        <div class="stat-float">EPA</div>
-        <div class="stat-float">WAR</div>
-        <div class="stat-float">BPM</div>
-        <div class="stat-float">CPOE</div>
+        <div class="stat-float" style="animation-delay: 0s;">OBP</div>
+        <div class="stat-float" style="animation-delay: 2s;">TS%</div>
+        <div class="stat-float" style="animation-delay: 4s;">EPA</div>
+        <div class="stat-float" style="animation-delay: 1s;">WAR</div>
+        <div class="stat-float" style="animation-delay: 3s;">BPM</div>
+        <div class="stat-float" style="animation-delay: 5s;">CPOE</div>
     </div>
 
     <!-- Scripts -->
     <script src="js/game-state.js"></script>
     <script src="js/navigation.js"></script>
     <script>
-        // Handle GM name input and navigation
-        document.addEventListener('DOMContentLoaded', () => {
-            const gmNameInput = document.getElementById('gm-name');
-            const startButton = document.getElementById('start-journey');
+        // Robust initialization with error handling
+        (function() {
+            'use strict';
 
-            // Load existing GM name if available
-            const existingName = gameState.getGMName();
-            if (existingName) {
-                gmNameInput.value = existingName;
-            }
-
-            // Save GM name on input
-            gmNameInput.addEventListener('input', (e) => {
-                gameState.setGMName(e.target.value.trim());
+            // Remove loading screen once DOM is ready
+            window.addEventListener('DOMContentLoaded', function() {
+                setTimeout(function() {
+                    const loadingScreen = document.getElementById('loading-screen');
+                    if (loadingScreen) {
+                        loadingScreen.classList.add('hidden');
+                    }
+                }, 500);
             });
 
-            // Handle start button
-            startButton.addEventListener('click', () => {
-                const gmName = gmNameInput.value.trim();
+            // Main initialization
+            document.addEventListener('DOMContentLoaded', function() {
+                console.log('🏀 Initializing Sports Analytics Team Builder...');
 
-                if (!gmName) {
-                    alert('Please enter your GM name to begin!');
-                    gmNameInput.focus();
+                // Get DOM elements
+                const gmNameInput = document.getElementById('gm-name');
+                const startButton = document.getElementById('start-journey');
+                const inputHint = document.getElementById('input-hint');
+
+                if (!gmNameInput || !startButton) {
+                    console.error('Critical DOM elements not found');
                     return;
                 }
 
-                // Save GM name
-                gameState.setGMName(gmName);
-
-                // Navigate to league select
-                window.location.href = 'league-select.html';
-            });
-
-            // Allow Enter key to start
-            gmNameInput.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') {
-                    startButton.click();
+                // Check if gameState is available
+                if (typeof gameState === 'undefined') {
+                    console.error('gameState not loaded. Check game-state.js');
+                    // Still allow basic functionality
                 }
+
+                // Load existing GM name if available
+                try {
+                    if (typeof gameState !== 'undefined') {
+                        const existingName = gameState.getGMName();
+                        if (existingName) {
+                            gmNameInput.value = existingName;
+                            console.log('Loaded existing GM name:', existingName);
+                        }
+                    }
+                } catch (e) {
+                    console.warn('Could not load existing GM name:', e);
+                }
+
+                // Save GM name on input with debounce
+                let saveTimeout;
+                gmNameInput.addEventListener('input', function(e) {
+                    clearTimeout(saveTimeout);
+                    const value = e.target.value.trim();
+
+                    // Hide error hint when typing
+                    if (inputHint) {
+                        inputHint.style.display = 'none';
+                    }
+
+                    // Debounce save
+                    saveTimeout = setTimeout(function() {
+                        if (value && typeof gameState !== 'undefined') {
+                            try {
+                                gameState.setGMName(value);
+                                console.log('Saved GM name:', value);
+                            } catch (e) {
+                                console.warn('Could not save GM name:', e);
+                            }
+                        }
+                    }, 300);
+                });
+
+                // Validate and navigate on start button click
+                startButton.addEventListener('click', function() {
+                    const gmName = gmNameInput.value.trim();
+
+                    // Validate input
+                    if (!gmName) {
+                        // Show error
+                        if (inputHint) {
+                            inputHint.style.display = 'block';
+                        }
+                        gmNameInput.focus();
+                        gmNameInput.classList.add('shake');
+                        setTimeout(function() {
+                            gmNameInput.classList.remove('shake');
+                        }, 500);
+                        return;
+                    }
+
+                    // Save GM name
+                    try {
+                        if (typeof gameState !== 'undefined') {
+                            gameState.setGMName(gmName);
+                            console.log('✅ GM name saved:', gmName);
+                        }
+                    } catch (e) {
+                        console.warn('Could not save GM name:', e);
+                    }
+
+                    // Animate button
+                    startButton.textContent = 'Loading...';
+                    startButton.disabled = true;
+
+                    // Navigate to league select after brief delay
+                    setTimeout(function() {
+                        window.location.href = 'league-select.html';
+                    }, 500);
+                });
+
+                // Allow Enter key to start
+                gmNameInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        startButton.click();
+                    }
+                });
+
+                // Focus input on load
+                setTimeout(function() {
+                    gmNameInput.focus();
+                }, 1000);
+
+                console.log('✅ Intro page initialized successfully');
             });
-        });
+
+            // Error handling for missing dependencies
+            window.addEventListener('error', function(e) {
+                console.error('Script error:', e.error);
+                // Still allow basic navigation
+            });
+
+        })();
+    </script>
+
+    <!-- Analytics (Optional - for GitHub Pages) -->
+    <script>
+        // Track page views if needed
+        console.log('📊 Page loaded:', window.location.pathname);
     </script>
 </body>
 </html>
