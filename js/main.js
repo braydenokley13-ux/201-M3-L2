@@ -5,12 +5,99 @@ document.addEventListener('DOMContentLoaded', () => {
     initializeGame();
 });
 
-// Initialize the game
+// Detect current page
+function getCurrentPage() {
+    const path = window.location.pathname;
+    const page = path.split('/').pop() || 'index.html';
+    return page.replace('.html', '');
+}
+
+// Initialize the game based on current page
 function initializeGame() {
     console.log('Initializing Sports Analytics Team Builder...');
 
+    const currentPage = getCurrentPage();
+    console.log('Current page:', currentPage);
+
+    // Route to appropriate initialization based on page
+    switch(currentPage) {
+        case 'index':
+        case '':
+            // Intro page - no game initialization needed
+            console.log('Intro page loaded');
+            break;
+
+        case 'league-select':
+            // Hub page - no game initialization needed
+            console.log('League select page loaded');
+            break;
+
+        case 'mlb':
+            initializeScenario(1); // MLB is scenario 1
+            break;
+
+        case 'nba':
+            initializeScenario(2); // NBA is scenario 2
+            break;
+
+        case 'nfl':
+            initializeScenario(3); // NFL is scenario 3
+            break;
+
+        case 'victory':
+            // Victory page - no game initialization needed
+            console.log('Victory page loaded');
+            break;
+
+        case 'index-old':
+            // Old single-page version - initialize all scenarios
+            initializeAllScenarios();
+            break;
+
+        default:
+            console.warn('Unknown page:', currentPage);
+    }
+
+    console.log('Game initialized successfully!');
+}
+
+// Initialize a single scenario (for individual scenario pages)
+function initializeScenario(scenarioId) {
+    console.log(`Initializing scenario ${scenarioId}...`);
+
+    // Check if scenario exists in DOM
+    const scenarioElement = document.getElementById(`scenario-${scenarioId}`);
+    if (!scenarioElement) {
+        console.error(`Scenario ${scenarioId} element not found in DOM`);
+        return;
+    }
+
+    // Get the scenario data
+    const scenarioData = GAME_DATA.find(s => s.id === scenarioId);
+    if (!scenarioData) {
+        console.error(`Scenario ${scenarioId} data not found`);
+        return;
+    }
+
+    // Create and initialize the scenario UI
+    const scenarioUI = new ScenarioUI(scenarioData, scenarioId);
+    scenarioUI.initialize();
+
+    // Add keyboard shortcuts
+    setupKeyboardShortcuts();
+
+    // Update success modal to return to hub
+    updateSuccessModalNavigation();
+
+    console.log(`Scenario ${scenarioId} initialized successfully!`);
+}
+
+// Initialize all scenarios (for old single-page version)
+function initializeAllScenarios() {
+    console.log('Initializing all scenarios...');
+
     // Create UI instances for each scenario
-    const scenarios = GAME_DATA.map((scenarioData, index) => {
+    const scenarios = GAME_DATA.map((scenarioData) => {
         return new ScenarioUI(scenarioData, scenarioData.id);
     });
 
@@ -24,22 +111,37 @@ function initializeGame() {
 
     // Add keyboard shortcuts
     setupKeyboardShortcuts();
-
-    console.log('Game initialized successfully!');
 }
 
-// Update overall progress display
-function updateOverallProgress() {
-    const completedCount = gameState.getCompletedCount();
-    document.getElementById('completed-count').textContent = completedCount;
+// Update success modal to navigate back to hub
+function updateSuccessModalNavigation() {
+    const modalCloseBtn = document.getElementById('modal-close');
+    if (modalCloseBtn) {
+        modalCloseBtn.addEventListener('click', () => {
+            window.location.href = 'league-select.html';
+        });
+    }
+}
 
-    const overallStatus = document.getElementById('overall-status');
+// Update overall progress display (for old single-page version)
+function updateOverallProgress() {
+    const completedCountElement = document.getElementById('completed-count');
+    const overallStatusElement = document.getElementById('overall-status');
+
+    if (!completedCountElement || !overallStatusElement) {
+        // Elements don't exist on this page
+        return;
+    }
+
+    const completedCount = gameState.getCompletedCount();
+    completedCountElement.textContent = completedCount;
+
     if (completedCount === 3) {
-        overallStatus.textContent = 'Complete!';
-        overallStatus.classList.add('complete');
+        overallStatusElement.textContent = 'Complete!';
+        overallStatusElement.classList.add('complete');
     } else {
-        overallStatus.textContent = 'In Progress';
-        overallStatus.classList.remove('complete');
+        overallStatusElement.textContent = 'In Progress';
+        overallStatusElement.classList.remove('complete');
     }
 }
 
