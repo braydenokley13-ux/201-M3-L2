@@ -586,3 +586,107 @@ body {
         grid-template-columns: 1fr;
     }
 }
+
+/* Position Badges */
+.position-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    border-radius: 4px;
+    margin-left: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+/* Sport-specific badge colors */
+.scenario[data-scenario="1"] .position-badge {
+    background: var(--mlb-primary);
+    color: white;
+}
+
+.scenario[data-scenario="2"] .position-badge {
+    background: var(--nba-primary);
+    color: white;
+}
+
+.scenario[data-scenario="3"] .position-badge {
+    background: var(--nfl-primary);
+    color: white;
+}
+
+/* Player Bio */
+.player-bio {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    font-style: italic;
+    margin: var(--spacing-sm) 0;
+    padding: var(--spacing-xs);
+    background: var(--primary-bg);
+    border-radius: var(--radius-sm);
+    line-height: 1.4;
+}
+
+/* Tooltips */
+.tooltip-trigger {
+    position: relative;
+    cursor: help;
+    border-bottom: 1px dotted var(--text-muted);
+}
+
+.tooltip-trigger::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%) translateY(-8px);
+    background: var(--primary-bg);
+    color: var(--text-primary);
+    padding: var(--spacing-sm);
+    border-radius: var(--radius-md);
+    font-size: 0.85rem;
+    line-height: 1.4;
+    width: 250px;
+    max-width: 300px;
+    white-space: normal;
+    text-align: left;
+    box-shadow: var(--shadow-lg);
+    border: 1px solid var(--card-bg);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+    z-index: 1000;
+    font-weight: normal;
+}
+
+.tooltip-trigger:hover::after {
+    opacity: 1;
+    transform: translateX(-50%) translateY(-4px);
+}
+
+/* Tooltip arrow */
+.tooltip-trigger::before {
+    content: '';
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 6px solid transparent;
+    border-top-color: var(--primary-bg);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+    z-index: 1001;
+}
+
+.tooltip-trigger:hover::before {
+    opacity: 1;
+}
+
+/* Mobile tooltip adjustments */
+@media (max-width: 768px) {
+    .tooltip-trigger::after {
+        width: 200px;
+        font-size: 0.75rem;
+    }
+}

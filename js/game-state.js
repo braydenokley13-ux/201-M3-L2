@@ -2,6 +2,7 @@
 class GameState {
     constructor() {
         this.state = {
+            gmName: '',
             currentScenario: 1,
             scenarios: {
                 1: { selected: [], completed: false, locked: false },
@@ -37,6 +38,7 @@ class GameState {
     // Clear all state (reset game)
     clearState() {
         this.state = {
+            gmName: '',
             currentScenario: 1,
             scenarios: {
                 1: { selected: [], completed: false, locked: false },
@@ -46,6 +48,16 @@ class GameState {
             completedCount: 0
         };
         this.saveState();
+    }
+
+    // GM Name methods
+    setGMName(name) {
+        this.state.gmName = name;
+        this.saveState();
+    }
+
+    getGMName() {
+        return this.state.gmName || '';
     }
 
     // Get selected players for a scenario
