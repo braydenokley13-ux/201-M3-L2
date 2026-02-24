@@ -311,11 +311,11 @@ html {
 
 /* Budget Bar Color Transitions */
 .budget-bar.low {
-    background: linear-gradient(90deg, var(--success), var(--warning));
+    background: var(--success);
 }
 
 .budget-bar.medium {
-    background: linear-gradient(90deg, var(--warning), var(--error));
+    background: var(--warning);
 }
 
 .budget-bar.high {

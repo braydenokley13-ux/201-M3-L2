@@ -39,6 +39,10 @@
 
                 <p class="scenario-description">Construct a balanced playoff rotation with 3-5 players who can score efficiently and play defense.</p>
 
+                <div class="story-hook" id="story-hook-2">
+                    <!-- Populated by JS -->
+                </div>
+
                 <div class="scenario-content">
                     <aside class="stats-panel">
                         <div class="budget-section">
@@ -55,6 +59,17 @@
                         <div class="player-count-section">
                             <h3>Players Selected</h3>
                             <p class="player-count"><span id="player-count-2">0</span> / 3-5 players</p>
+                        </div>
+
+                        <div class="selected-players-section">
+                            <h3>Your Team</h3>
+                            <div class="selected-players-list" id="selected-players-2">
+                                <p class="no-players-msg">No players selected yet</p>
+                            </div>
+                        </div>
+
+                        <div class="position-constraints-section" id="position-constraints-2">
+                            <!-- Populated by JS if constraints exist -->
                         </div>
 
                         <div class="criteria-section">
@@ -86,6 +101,30 @@
             <h2 class="modal-title">Scenario Complete!</h2>
             <p class="modal-message"></p>
             <button class="btn btn-primary" id="modal-close">Back to Hub</button>
+        </div>
+    </div>
+
+    <!-- Failure Modal -->
+    <div class="modal" id="failure-modal">
+        <div class="modal-content failure">
+            <div class="modal-icon">❌</div>
+            <h2 class="modal-title">Not Quite!</h2>
+            <p class="modal-subtitle">Your team didn't meet all the requirements:</p>
+            <ul class="failure-reasons" id="failure-reasons-list"></ul>
+            <button class="btn btn-secondary" id="failure-modal-close">Adjust My Team</button>
+        </div>
+    </div>
+
+    <!-- Confirm Modal -->
+    <div class="modal" id="confirm-modal">
+        <div class="modal-content confirm">
+            <div class="modal-icon">⚠️</div>
+            <h2 class="modal-title">Are you sure?</h2>
+            <p class="modal-message" id="confirm-message"></p>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" id="confirm-cancel">Cancel</button>
+                <button class="btn btn-primary" id="confirm-ok">Confirm</button>
+            </div>
         </div>
     </div>
 
