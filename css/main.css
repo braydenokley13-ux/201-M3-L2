@@ -262,7 +262,7 @@ body {
 
 .budget-bar {
     height: 100%;
-    background: linear-gradient(90deg, var(--success), var(--warning), var(--error));
+    background: var(--success);
     width: 0%;
     transition: width 0.3s ease;
 }
@@ -323,6 +323,14 @@ body {
 
 .criterion-icon {
     margin-left: var(--spacing-xs);
+}
+
+.criterion.pass .criterion-icon {
+    color: var(--success);
+}
+
+.criterion.fail .criterion-icon {
+    color: var(--error);
 }
 
 /* Action Buttons */
@@ -529,6 +537,152 @@ body {
     padding: var(--spacing-md);
     border-radius: var(--radius-md);
     margin-bottom: var(--spacing-lg);
+}
+
+/* Failure Modal */
+.modal-content.failure {
+    border-top: 4px solid var(--error);
+    max-width: 500px;
+}
+
+.modal-subtitle {
+    color: var(--text-secondary);
+    margin-bottom: var(--spacing-md);
+    font-size: 1rem;
+}
+
+.failure-reasons {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 var(--spacing-lg) 0;
+    text-align: left;
+}
+
+.failure-reasons li {
+    padding: var(--spacing-xs) var(--spacing-sm);
+    margin-bottom: var(--spacing-xs);
+    background: var(--card-bg);
+    border-radius: var(--radius-sm);
+    border-left: 3px solid var(--error);
+    font-size: 0.95rem;
+    color: var(--text-secondary);
+}
+
+.failure-reasons li::before {
+    content: '✗ ';
+    color: var(--error);
+    font-weight: 700;
+}
+
+/* Confirm Modal */
+.modal-content.confirm {
+    border-top: 4px solid var(--warning);
+    max-width: 420px;
+}
+
+.modal-actions {
+    display: flex;
+    gap: var(--spacing-sm);
+    justify-content: center;
+    margin-top: var(--spacing-md);
+}
+
+/* Success Modal Player List */
+.modal-player-list {
+    display: block;
+    margin-top: var(--spacing-sm);
+    font-size: 0.9rem;
+    color: var(--success);
+    font-weight: 600;
+}
+
+/* Story Hook */
+.story-hook {
+    background: var(--card-bg);
+    border-left: 4px solid var(--info);
+    border-radius: var(--radius-sm);
+    padding: var(--spacing-md);
+    margin-bottom: var(--spacing-lg);
+    font-style: italic;
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    line-height: 1.7;
+}
+
+.story-hook:empty {
+    display: none;
+}
+
+/* Selected Players Panel */
+.selected-players-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.no-players-msg {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    font-style: italic;
+}
+
+.selected-player-tag {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--primary-bg);
+    border: 1px solid var(--success);
+    border-radius: var(--radius-sm);
+    padding: 4px 8px;
+    font-size: 0.8rem;
+    animation: slideIn 0.2s ease-out;
+}
+
+.selected-player-tag .tag-name {
+    font-weight: 600;
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 130px;
+}
+
+.selected-player-tag .tag-salary {
+    color: var(--warning);
+    font-weight: 700;
+    font-size: 0.75rem;
+    flex-shrink: 0;
+}
+
+.selected-player-tag .tag-position {
+    color: var(--text-muted);
+    font-size: 0.7rem;
+    flex-shrink: 0;
+    margin-right: 4px;
+}
+
+/* Position Requirements Panel */
+.position-req-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.position-req {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    padding: 4px var(--spacing-xs);
+    background: var(--primary-bg);
+    border-radius: var(--radius-sm);
+    border-left: 2px solid var(--info);
+}
+
+.position-req-detail {
+    color: var(--text-muted);
+    font-size: 0.75rem;
 }
 
 /* Footer */

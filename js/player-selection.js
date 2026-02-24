@@ -1,4 +1,13 @@
 // Player Selection and UI Updates
+
+// UI Constants
+const BUDGET_LOW_THRESHOLD = 50;      // % of budget below which bar shows "low" state
+const BUDGET_MEDIUM_THRESHOLD = 90;   // % of budget above which bar shows "high" state
+const TOTAL_SCENARIOS = 3;
+const UNLOCK_DELAY_MS = 1000;
+const VICTORY_DELAY_MS = 2000;
+const CONFETTI_COUNT = 50;
+
 class ScenarioUI {
     constructor(scenarioData, scenarioId) {
         this.scenario = scenarioData;
@@ -126,9 +135,9 @@ class ScenarioUI {
 
         // Color code budget bar
         budgetBar.classList.remove('low', 'medium', 'high');
-        if (budgetPercentage < 50) {
+        if (budgetPercentage < BUDGET_LOW_THRESHOLD) {
             budgetBar.classList.add('low');
-        } else if (budgetPercentage < 90) {
+        } else if (budgetPercentage < BUDGET_MEDIUM_THRESHOLD) {
             budgetBar.classList.add('medium');
         } else {
             budgetBar.classList.add('high');
@@ -149,6 +158,9 @@ class ScenarioUI {
         if (validationResult.budget.pass === false) {
             this.showBudgetError();
         }
+
+        // Update selected players list
+        this.updateSelectedPlayersList();
     }
 
     // Update criteria display
@@ -158,7 +170,7 @@ class ScenarioUI {
 
         for (const [key, result] of Object.entries(criteriaResults)) {
             const criterion = document.createElement('div');
-            criterion.className = `criterion ${result.pass ? 'pass' : ''}`;
+            criterion.className = `criterion ${result.pass ? 'pass' : 'fail'}`;
 
             const formattedValue = this.validator.formatStatValue(key, result.value);
             const formattedThreshold = this.validator.formatStatValue(key, result.threshold);
@@ -167,7 +179,7 @@ class ScenarioUI {
                 <span class="criterion-label">${result.label}</span>
                 <span class="criterion-value">
                     ${formattedValue} ${result.operator} ${formattedThreshold}
-                    <span class="criterion-icon">${result.pass ? '✓' : ''}</span>
+                    <span class="criterion-icon">${result.pass ? '✓' : '✗'}</span>
                 </span>
             `;
 
@@ -216,47 +228,58 @@ class ScenarioUI {
         this.updateOverallProgress();
 
         // Unlock next scenario
-        if (this.scenarioId < 3) {
+        if (this.scenarioId < TOTAL_SCENARIOS) {
             setTimeout(() => {
                 this.unlockNextScenario();
-            }, 1000);
+            }, UNLOCK_DELAY_MS);
         } else {
             // Game complete
             setTimeout(() => {
                 this.showVictoryModal();
-            }, 2000);
+            }, VICTORY_DELAY_MS);
         }
     }
 
     // Handle failed validation
     handleFailure(validationResult) {
-        // Show what failed
-        let failedCriteria = [];
+        // Build failure reasons list
+        const failedItems = [];
 
         if (!validationResult.playerCount.pass) {
-            failedCriteria.push(validationResult.playerCount.message);
+            failedItems.push(validationResult.playerCount.message);
         }
 
         if (!validationResult.budget.pass) {
-            failedCriteria.push(validationResult.budget.message);
+            failedItems.push(validationResult.budget.message);
         }
 
         for (const [key, result] of Object.entries(validationResult.criteria)) {
             if (!result.pass) {
-                failedCriteria.push(`${result.label} too ${result.operator === '>=' ? 'low' : 'high'}`);
+                const direction = result.operator === '>=' ? 'too low' : 'too high';
+                failedItems.push(`${result.label} is ${direction}`);
             }
         }
 
-        // Check position constraints
         if (validationResult.positions) {
             for (const [key, result] of Object.entries(validationResult.positions)) {
                 if (!result.pass) {
-                    failedCriteria.push(`Need at least ${result.min} ${result.label} (${result.positions.join('/')}) - currently ${result.count}`);
+                    failedItems.push(
+                        `Need at least ${result.min} ${result.label} (${result.positions.join('/')}) — have ${result.count}`
+                    );
                 }
             }
         }
 
-        alert('Team validation failed:\n\n' + failedCriteria.join('\n'));
+        // Populate and show the failure modal
+        const list = document.getElementById('failure-reasons-list');
+        list.innerHTML = failedItems.map(reason => `<li>${reason}</li>`).join('');
+
+        const modal = document.getElementById('failure-modal');
+        modal.classList.add('show');
+
+        document.getElementById('failure-modal-close').onclick = () => {
+            modal.classList.remove('show');
+        };
 
         // Update criteria display to show failures
         this.updateCriteria(validationResult.criteria);
@@ -278,12 +301,19 @@ class ScenarioUI {
     // Show success modal
     showSuccessModal() {
         const modal = document.getElementById('success-modal');
-        const message = modal.querySelector('.modal-message');
+        const messageEl = modal.querySelector('.modal-message');
 
         const selectedIndices = gameState.getSelectedPlayers(this.scenarioId);
         const validationResult = this.validator.validate(selectedIndices);
+        const playerNames = selectedIndices
+            .map(idx => this.scenario.players[idx].name)
+            .join(', ');
 
-        message.textContent = `You built an efficient ${this.scenario.sport} team with ${selectedIndices.length} players for $${validationResult.budget.spent.toFixed(1)}M!`;
+        messageEl.innerHTML = `
+            You built an efficient ${this.scenario.sport} team for
+            <strong>$${validationResult.budget.spent.toFixed(1)}M</strong>!<br>
+            <span class="modal-player-list">Roster: ${playerNames}</span>
+        `;
 
         modal.classList.add('show');
 
@@ -298,16 +328,48 @@ class ScenarioUI {
         modal.classList.add('show');
 
         document.getElementById('play-again').onclick = () => {
-            if (confirm('Are you sure you want to reset all progress and play again?')) {
-                gameState.clearState();
-                location.reload();
-            }
+            this.showConfirm(
+                'Reset all progress and play again from the beginning?',
+                'Play Again',
+                () => {
+                    gameState.clearState();
+                    location.reload();
+                }
+            );
         };
+    }
+
+    // Show a reusable confirmation modal
+    showConfirm(message, okLabel, onConfirm) {
+        const modal = document.getElementById('confirm-modal');
+        document.getElementById('confirm-message').textContent = message;
+        document.getElementById('confirm-ok').textContent = okLabel || 'Confirm';
+        modal.classList.add('show');
+
+        const okBtn = document.getElementById('confirm-ok');
+        const cancelBtn = document.getElementById('confirm-cancel');
+
+        const cleanup = () => modal.classList.remove('show');
+
+        const okHandler = () => {
+            cleanup();
+            onConfirm();
+            okBtn.removeEventListener('click', okHandler);
+            cancelBtn.removeEventListener('click', cancelHandler);
+        };
+        const cancelHandler = () => {
+            cleanup();
+            okBtn.removeEventListener('click', okHandler);
+            cancelBtn.removeEventListener('click', cancelHandler);
+        };
+
+        okBtn.addEventListener('click', okHandler);
+        cancelBtn.addEventListener('click', cancelHandler);
     }
 
     // Create confetti effect
     createConfetti() {
-        for (let i = 0; i < 50; i++) {
+        for (let i = 0; i < CONFETTI_COUNT; i++) {
             const confetti = document.createElement('div');
             confetti.className = 'confetti-piece';
             confetti.style.left = Math.random() * 100 + '%';
@@ -325,7 +387,7 @@ class ScenarioUI {
         document.getElementById('completed-count').textContent = completedCount;
 
         const overallStatus = document.getElementById('overall-status');
-        if (completedCount === 3) {
+        if (completedCount === TOTAL_SCENARIOS) {
             overallStatus.textContent = 'Complete!';
             overallStatus.classList.add('complete');
         } else {
@@ -349,15 +411,61 @@ class ScenarioUI {
 
     // Reset scenario
     resetScenario() {
-        if (confirm('Are you sure you want to reset this scenario?')) {
-            gameState.resetScenario(this.scenarioId);
+        this.showConfirm(
+            'Reset this scenario? Your player selections will be cleared.',
+            'Yes, Reset',
+            () => {
+                gameState.resetScenario(this.scenarioId);
+                this.renderPlayers();
+                this.updateStats();
+            }
+        );
+    }
 
-            // Re-render players
-            this.renderPlayers();
+    // Update the selected players list in the sidebar
+    updateSelectedPlayersList() {
+        const container = document.getElementById(`selected-players-${this.scenarioId}`);
+        if (!container) return;
 
-            // Reset stats
-            this.updateStats();
+        const selectedIndices = gameState.getSelectedPlayers(this.scenarioId);
+
+        if (selectedIndices.length === 0) {
+            container.innerHTML = '<p class="no-players-msg">No players selected yet</p>';
+            return;
         }
+
+        container.innerHTML = selectedIndices.map(idx => {
+            const player = this.scenario.players[idx];
+            return `
+                <div class="selected-player-tag">
+                    <span class="tag-name">${player.name}</span>
+                    <span class="tag-position">${player.position}</span>
+                    <span class="tag-salary">$${player.salary.toFixed(1)}M</span>
+                </div>
+            `;
+        }).join('');
+    }
+
+    // Render position requirements in the sidebar
+    renderPositionConstraints() {
+        const container = document.getElementById(`position-constraints-${this.scenarioId}`);
+        if (!container || !this.scenario.positionConstraints) return;
+
+        const entries = Object.entries(this.scenario.positionConstraints);
+        if (entries.length === 0) return;
+
+        const rows = entries.map(([groupName, constraint]) => {
+            const label = groupName.charAt(0).toUpperCase() + groupName.slice(1);
+            return `<li class="position-req">
+                Needs ≥${constraint.min} ${label}
+                <span class="position-req-detail">(${constraint.positions.join('/')})</span>
+            </li>`;
+        }).join('');
+
+        container.innerHTML = `
+            <h3>Position Requirements</h3>
+            <ul class="position-req-list">${rows}</ul>
+        `;
     }
 
     // Initialize scenario UI
@@ -367,6 +475,15 @@ class ScenarioUI {
 
         // Initialize stats
         this.updateStats();
+
+        // Render story hook if present
+        const storyHookEl = document.getElementById(`story-hook-${this.scenarioId}`);
+        if (storyHookEl && this.scenario.storyHook) {
+            storyHookEl.textContent = this.scenario.storyHook;
+        }
+
+        // Render position constraints
+        this.renderPositionConstraints();
 
         // Update scenario status if already completed
         if (gameState.isScenarioCompleted(this.scenarioId)) {

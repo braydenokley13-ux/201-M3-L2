@@ -167,18 +167,21 @@ class Validator {
 
     // Get formatted stat display value
     formatStatValue(key, value) {
+        // Normalize criterion keys: strip _avg suffix so 'obp_avg' -> 'obp'
+        const normalizedKey = key.replace(/_avg$/, '');
+
         // Percentage stats
-        if (key.includes('percent') || key === 'obp' || key === 'slg' || key === 'ops' || key === 'ts_percent') {
+        if (normalizedKey.includes('percent') || normalizedKey === 'obp' || normalizedKey === 'slg' || normalizedKey === 'ops' || normalizedKey === 'ts_percent') {
             return (value * 100).toFixed(1) + '%';
         }
 
         // Money
-        if (key === 'salary') {
+        if (normalizedKey === 'salary') {
             return '$' + value.toFixed(1) + 'M';
         }
 
         // Whole numbers
-        if (key === 'age' || key.includes('usage') || key === 'success_rate' || key === 'dvoa') {
+        if (normalizedKey === 'age' || normalizedKey.includes('usage') || normalizedKey === 'success_rate' || normalizedKey === 'dvoa') {
             return value.toFixed(0);
         }
 

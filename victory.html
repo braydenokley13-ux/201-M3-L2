@@ -104,33 +104,64 @@
         </div>
     </div>
 
+    <!-- Confirm Modal -->
+    <div class="modal" id="confirm-modal">
+        <div class="modal-content confirm">
+            <div class="modal-icon">⚠️</div>
+            <h2 class="modal-title">Are you sure?</h2>
+            <p class="modal-message" id="confirm-message"></p>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" id="confirm-cancel">Cancel</button>
+                <button class="btn btn-primary" id="confirm-ok">Confirm</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Scripts -->
     <script src="js/game-state.js"></script>
+    <script src="js/data.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             // Load GM name
             const gmName = gameState.getGMName() || 'Anonymous GM';
             document.getElementById('victory-gm-name').textContent = gmName;
 
-            // Load player counts for each scenario
-            const mlbCount = gameState.getSelectedPlayers(1).length;
-            const nbaCount = gameState.getSelectedPlayers(2).length;
-            const nflCount = gameState.getSelectedPlayers(3).length;
-
-            document.getElementById('mlb-detail').textContent = `${mlbCount} players selected`;
-            document.getElementById('nba-detail').textContent = `${nbaCount} players selected`;
-            document.getElementById('nfl-detail').textContent = `${nflCount} players selected`;
+            // Load player names for each scenario
+            [
+                { scenarioId: 1, detailId: 'mlb-detail' },
+                { scenarioId: 2, detailId: 'nba-detail' },
+                { scenarioId: 3, detailId: 'nfl-detail' }
+            ].forEach(({ scenarioId, detailId }) => {
+                const selectedIndices = gameState.getSelectedPlayers(scenarioId);
+                const scenarioData = GAME_DATA.find(s => s.id === scenarioId);
+                const names = selectedIndices
+                    .map(idx => scenarioData ? scenarioData.players[idx].name : '?')
+                    .join(', ');
+                document.getElementById(detailId).textContent =
+                    names.length > 0 ? names : 'No players recorded';
+            });
 
             // Create confetti effect
             createVictoryConfetti();
 
             // Play Again button
             document.getElementById('play-again-btn').addEventListener('click', () => {
-                if (confirm('Are you sure you want to reset all progress and start over?')) {
+                const modal = document.getElementById('confirm-modal');
+                document.getElementById('confirm-message').textContent =
+                    'Reset all progress and start over from the beginning?';
+                document.getElementById('confirm-ok').textContent = 'Play Again';
+                modal.classList.add('show');
+
+                const okBtn = document.getElementById('confirm-ok');
+                const cancelBtn = document.getElementById('confirm-cancel');
+
+                okBtn.onclick = () => {
+                    modal.classList.remove('show');
                     gameState.clearState();
                     sessionStorage.clear();
                     window.location.href = 'index.html';
-                }
+                };
+                cancelBtn.onclick = () => modal.classList.remove('show');
             });
         });
 
